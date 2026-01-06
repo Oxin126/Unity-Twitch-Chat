@@ -64,6 +64,10 @@ namespace Lexone.UnityTwitchChat
                     case "user-id":
                         tags.userId = value;
                         continue;
+        
+                    case "bits":
+                        tags.bits = System.Int32.Parse(value);
+                        continue;
                 }
             }
 
@@ -133,6 +137,72 @@ namespace Lexone.UnityTwitchChat
             }
 
             return badges;
+        }
+
+        public static IRCRaid ParseRaid(string tagString)
+        {
+            IRCRaid raid = new IRCRaid();
+            string[] split = tagString.Split(';');
+
+            // Loop through tags
+            for (int i = 0; i < split.Length; ++i)
+            {
+                string value = split[i].Substring(split[i].IndexOf('=') + 1);
+
+                if (value.Length <= 0) // Ignore empty tags
+                    continue;
+
+                // Find the tags we are interested in
+                switch (split[i].Substring(0, split[i].IndexOf('=')))
+                {
+                    case "msg-param-displayName":
+                        raid.raiderDisplayName = value;
+                        continue;
+                    
+                    case "msg-param-viewerCount":
+                        raid.raiderViewerCount = System.Int32.Parse(value);
+                        continue;
+                }
+            }
+
+            return raid;
+        }
+
+        public static IRCSubscription ParseSubscription(string tagString)
+        {
+            IRCSubscription subscription = new IRCSubscription();
+            string[] split = tagString.Split(';');
+
+            // Loop through tags
+            for (int i = 0; i < split.Length; ++i)
+            {
+                string value = split[i].Substring(split[i].IndexOf('=') + 1);
+
+                if (value.Length <= 0) // Ignore empty tags
+                    continue;
+
+                // Find the tags we are interested in
+                switch (split[i].Substring(0, split[i].IndexOf('=')))
+                {
+                    case "msg-id":
+                        subscription.msgID = value;
+                        continue;
+                    case "display-name":
+                        subscription.subGifter = value;
+                        continue;
+                    case "msg-param-sub-plan":
+                        if (value == "Prime") subscription.subPlan = "Prime";
+                        if (value == "1000") subscription.subPlan = "Tier 1";
+                        if (value == "2000") subscription.subPlan = "Tier 2";
+                        if (value == "3000") subscription.subPlan = "Tier 3";
+                        continue;
+                    case "msg-param-mass-gift-count":
+                        subscription.subGiftCount = System.Int32.Parse(value);
+                        continue;
+                }
+            }
+
+            return subscription;
         }
     }
 }

@@ -29,6 +29,7 @@ namespace Lexone.UnityTwitchChat
         public string displayName = string.Empty;
         public string channelId = string.Empty;
         public string userId = string.Empty;
+        public int bits = 0;
 
         public ChatterBadge[] badges = new ChatterBadge[0];
         public ChatterEmote[] emotes = new ChatterEmote[0];
@@ -54,5 +55,21 @@ namespace Lexone.UnityTwitchChat
 
             return false;
         }
+    }
+
+    [System.Serializable]
+    public class IRCRaid
+    {
+        public string raiderDisplayName = string.Empty;
+        public int raiderViewerCount = -1;
+    }
+
+    [System.Serializable]
+    public class IRCSubscription
+    {
+        public string msgID = string.Empty;
+        public string subGifter = string.Empty;
+        public string subPlan = string.Empty;
+        public int subGiftCount = 1;
     }
 }

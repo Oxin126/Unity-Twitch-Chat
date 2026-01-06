@@ -29,6 +29,8 @@ namespace Lexone.UnityTwitchChat
 
             this.alertQueue = irc.alertQueue;
             this.chatterQueue = irc.chatterQueue;
+            this.raiderQueue = irc.raiderQueue;
+            this.subscriberQueue = irc.subscriberQueue;
 
             this.rateLimit = RateLimit.ChatRegular;
 
@@ -70,6 +72,8 @@ namespace Lexone.UnityTwitchChat
 
         private readonly ConcurrentQueue<IRCReply> alertQueue;
         private readonly ConcurrentQueue<Chatter> chatterQueue;
+        private readonly ConcurrentQueue<Raider> raiderQueue;
+        private readonly ConcurrentQueue<Subscriber> subscriberQueue;
 
         private Thread readThread;
         private Thread writeThread;

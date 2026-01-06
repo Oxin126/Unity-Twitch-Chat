@@ -16,7 +16,7 @@ namespace Lexone.UnityTwitchChat
         [Header("Twitch IRC connection")]
 
         [Tooltip("If true, the client will connect to Twitch IRC anonymously (OAuth and username will be ignored)\n\nNote that you can't send chat messages when using anonymous login.")]
-        [SerializeField] private bool useAnonymousLogin = false;
+        [SerializeField] private bool useAnonymousLogin = true;
 
         [Tooltip("The OAuth token which will be used to authenticate with Twitch.\n\nGenerate one at: https://twitchapps.com/tmi/")]
         [SerializeField] public string oauth = "";
@@ -30,7 +30,7 @@ namespace Lexone.UnityTwitchChat
         [Header("General settings")]
 
         [Tooltip("If true, the client will connect to Twitch IRC on Start.")]
-        [SerializeField] private bool connectIRCOnStart = true;
+        [SerializeField] private bool connectIRCOnStart = false;
 
         [Tooltip("If true, the client will automatically join the given channel upon a successful connection.")]
         [SerializeField] public bool joinChannelOnStart = true;
@@ -72,12 +72,16 @@ namespace Lexone.UnityTwitchChat
 
         public event Action<Chatter> OnChatMessage;
         public event Action<IRCReply> OnConnectionAlert;
+        public event Action<Raider> OnRaider;
+        public event Action<Subscriber> OnSubcription;
 
         #endregion
 
         // Queues
         internal readonly ConcurrentQueue<IRCReply> alertQueue = new ConcurrentQueue<IRCReply>();
         internal readonly ConcurrentQueue<Chatter> chatterQueue = new ConcurrentQueue<Chatter>();
+        internal readonly ConcurrentQueue<Raider> raiderQueue = new ConcurrentQueue<Raider>();
+        internal readonly ConcurrentQueue<Subscriber> subscriberQueue = new ConcurrentQueue<Subscriber>();
 
         [ContextMenu("Ping")]
         public void Ping() => connection?.Ping();
@@ -156,6 +160,32 @@ namespace Lexone.UnityTwitchChat
                 if (chatterQueue.TryDequeue(out var chatter))
                 {
                     OnChatMessage?.Invoke(chatter);
+                    dataHandledThisFrame++;
+                }
+            }
+
+            // Handle pending raids
+            while (!raiderQueue.IsEmpty)
+            {
+                if (dataHandledThisFrame >= maxDataPerFrame)
+                    break;
+
+                if (raiderQueue.TryDequeue(out var raider))
+                {
+                    OnRaider?.Invoke(raider);
+                    dataHandledThisFrame++;
+                }
+            }
+
+            // Handle pending subscription
+            while (!subscriberQueue.IsEmpty)
+            {
+                if (dataHandledThisFrame >= maxDataPerFrame)
+                    break;
+
+                if (subscriberQueue.TryDequeue(out var subscriber))
+                {
+                    OnSubcription?.Invoke(subscriber);
                     dataHandledThisFrame++;
                 }
             }

@@ -119,7 +119,9 @@ namespace Lexone.UnityTwitchChat
                     case "NOTICE": // = Notice
                         HandleNOTICE(ircString, tagString);
                         break;
-
+                    case "USERNOTICE":
+                        HandleUserNotice(ircString, tagString);
+                        break;
                     // RPL messages
                     case "353": // = Successful channel join
                     case "001": // = Successful IRC connection
@@ -202,6 +204,35 @@ namespace Lexone.UnityTwitchChat
                 case "353":
                     alertQueue.Enqueue(IRCReply.JOINED_CHANNEL);
                     break;
+            }
+        }
+
+        /// <summary>
+        /// Handle an USERNOTICE message
+        /// </summary>
+        private void HandleUserNotice(string ircString, string tagString)
+        {
+            var channel = ParseHelper.ParseChannel(ircString);
+            var message = ParseHelper.ParseMessage(ircString);
+
+            //Raid
+            var raid = ParseHelper.ParseRaid(tagString);
+            if (raid.raiderDisplayName != string.Empty)
+            {
+                raiderQueue.Enqueue(new Raider(channel, raid));
+                return;
+            }
+
+            //Subscription
+            var subscription = ParseHelper.ParseSubscription(tagString);
+
+            if (!(subscription.msgID == "sub" || subscription.msgID == "submysterygift"))
+                return;
+
+            if (subscription.subGifter != string.Empty)
+            {
+                subscriberQueue.Enqueue(new Subscriber(channel, message, subscription));
+                return;
             }
         }
     }
