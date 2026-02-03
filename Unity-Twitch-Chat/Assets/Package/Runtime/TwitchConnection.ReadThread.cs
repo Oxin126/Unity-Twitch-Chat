@@ -213,15 +213,6 @@ namespace Lexone.UnityTwitchChat
         private void HandleUserNotice(string ircString, string tagString)
         {
             var channel = ParseHelper.ParseChannel(ircString);
-            var message = ParseHelper.ParseMessage(ircString);
-
-            //Raid
-            var raid = ParseHelper.ParseRaid(tagString);
-            if (raid.raiderDisplayName != string.Empty)
-            {
-                raiderQueue.Enqueue(new Raider(channel, raid));
-                return;
-            }
 
             //Subscription
             var subscription = ParseHelper.ParseSubscription(tagString);
@@ -231,9 +222,28 @@ namespace Lexone.UnityTwitchChat
 
             if (subscription.subGifter != string.Empty)
             {
-                subscriberQueue.Enqueue(new Subscriber(channel, message, subscription));
+                var subMessage = "";
+
+                if (subscription.msgID == "sub")
+                {
+                    var splitedMessage = ircString.Split(":");
+                    if (splitedMessage.Length >= 3) subMessage = splitedMessage[2];
+                    //Debug.Log($"FULL:{ircString}");
+                    //Debug.Log($"Message:{message}");
+                    //Debug.Log("SUB MESSAGE:" + subMessage);
+                    //Debug.Log($"-------------------------------");
+                }
+                subscriberQueue.Enqueue(new Subscriber(channel, subMessage, subscription));
                 return;
             }
+
+            //Raid
+            var raid = ParseHelper.ParseRaid(tagString);
+            if (raid.raiderDisplayName != string.Empty)
+            {
+                raiderQueue.Enqueue(new Raider(channel, raid));
+                return;
+            }        
         }
     }
 }

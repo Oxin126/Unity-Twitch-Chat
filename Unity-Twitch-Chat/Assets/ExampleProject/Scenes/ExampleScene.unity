@@ -1159,7 +1159,7 @@ MonoBehaviour:
   useAnonymousLogin: 1
   oauth: 
   username: 
-  channel: vedal987
+  channel: zackrawrr
   connectIRCOnStart: 1
   joinChannelOnStart: 1
   dontDestroyOnLoad: 1
